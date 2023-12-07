@@ -64,6 +64,29 @@ export function InfoHeader({ relatedPaths }: InfoHeaderProps) {
     goToNodeId(newPath, "pathBar");
   }, [newPath, goToNodeId]);
 
+  // Add a new state variable for the textarea value
+  const [textareaValue, setTextareaValue] = useState('');
+
+  // Update the textarea value in the local state on every change
+  const handleTextareaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setTextareaValue(e.target.value);
+  };
+
+  // Update the global state when the user presses Enter
+  const handleTextareaKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleValueChange(textareaValue);
+      setIsEditing(false);
+    }
+  };
+
+  // Set the textarea value when the user starts editing
+  const startEditing = () => {
+    setTextareaValue(formatRawValue(selectedInfo));
+    setIsEditing(true);
+  };
+
   return (
     <div className="mb-4 pb-4">
       <div className="flex items-center">
@@ -85,17 +108,12 @@ export function InfoHeader({ relatedPaths }: InfoHeaderProps) {
       >
         {isSelectedLeafNode && (
           isEditing ? (
-            <textarea
-              className={`z-10 py-1 mb-1 text-slate-800 overflow-ellipsis break-words transition rounded-sm dark:text-slate-300 ${hovering ? "bg-slate-100 dark:bg-slate-700" : "bg-transparent"
-                }`}
-              value={selectedNode.name === "$ref" && checkPathExists(json, newPath) ? formatRawValue(selectedInfo) : formatRawValue(selectedInfo)}
-              onChange={(e) => handleValueChange(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  e.preventDefault();
-                  setIsEditing(false);
-                }
-              }}
+            <input
+            className={`z-10 py-1 mb-1 text-slate-800 overflow-ellipsis break-words transition rounded-sm dark:text-slate-300 ${hovering ? "bg-slate-100 dark:bg-slate-700" : "bg-transparent"
+          }`}
+              value={textareaValue}
+              onChange={handleTextareaChange}
+              onKeyDown={handleTextareaKeyDown}
             />
           ) : (
             <div className="flex items-center">
@@ -123,8 +141,8 @@ export function InfoHeader({ relatedPaths }: InfoHeaderProps) {
             }`}
         >
           <button className="flex ml-auto justify-center items-center w-[26px] h-[26px] hover:bg-slate-300 dark:text-slate-400 dark:hover:bg-white dark:hover:bg-opacity-[10%]"
-                onClick={() => setIsEditing(true)}>
-                <PencilAltIcon className='h-5' />
+            onClick={() => startEditing()}>
+            <PencilAltIcon className='h-5' />
           </button>
           <CopyTextButton
             className="bg-slate-200 hover:bg-slate-300 h-fit mr-1 px-2 py-0.5 rounded-sm transition hover:cursor-pointer dark:text-white dark:bg-slate-600 dark:hover:bg-slate-500"
