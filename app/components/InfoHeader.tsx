@@ -14,6 +14,7 @@ import { Body } from "./Primitives/Body";
 import { LargeMono } from "./Primitives/LargeMono";
 import { Title } from "./Primitives/Title";
 import { ValueIcon, ValueIconSize } from "./ValueIcon";
+import { PencilAltIcon } from "@heroicons/react/outline";
 
 export type InfoHeaderProps = {
   relatedPaths: string[];
@@ -46,6 +47,8 @@ export function InfoHeader({ relatedPaths }: InfoHeaderProps) {
   }, [relatedPaths, json]);
 
   const [hovering, setHovering] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+
   console.warn(selectedInfo);
 
   const newPath = formattedSelectedInfo.replace(/^#/, "$").replace(/\//g, ".");
@@ -65,7 +68,7 @@ export function InfoHeader({ relatedPaths }: InfoHeaderProps) {
     <div className="mb-4 pb-4">
       <div className="flex items-center">
         <Title className="flex-1 mr-2 overflow-hidden overflow-ellipsis break-words text-slate-700 transition dark:text-slate-200">
-          { selectedName ?? "nothing" }
+          {selectedName ?? "nothing"}
         </Title>
         <div>
           <ValueIcon
@@ -80,41 +83,54 @@ export function InfoHeader({ relatedPaths }: InfoHeaderProps) {
         onMouseEnter={() => setHovering(true)}
         onMouseLeave={() => setHovering(false)}
       >
-        {/* {isSelectedLeafNode && (
-          <LargeMono
-            className={`z-10 py-1 mb-1 text-slate-800 overflow-ellipsis break-words transition rounded-sm dark:text-slate-300 ${
-              hovering ? "bg-slate-100 dark:bg-slate-700" : "bg-transparent"
-            }`}
-          >
-            {selectedNode.name === "$ref" && checkPathExists(json, newPath) ? (
-              <button onClick={handleClick}>
-                {formatRawValue(selectedInfo)}
-              </button>
-            ) : (
-              formatRawValue(selectedInfo)
-            )}
-          </LargeMono>
-        )} */}
         {isSelectedLeafNode && (
-    <textarea
-      className={`z-10 py-1 mb-1 text-slate-800 overflow-ellipsis break-words transition rounded-sm dark:text-slate-300 ${
-        hovering ? "bg-slate-100 dark:bg-slate-700" : "bg-transparent"
-      }`}
-      value={selectedNode.name === "$ref" && checkPathExists(json, newPath) ? formatRawValue(selectedInfo) : formatRawValue(selectedInfo)}
-      onChange={(e) => handleValueChange(e.target.value)}
-    />
-  )}
+          isEditing ? (
+            <textarea
+              className={`z-10 py-1 mb-1 text-slate-800 overflow-ellipsis break-words transition rounded-sm dark:text-slate-300 ${hovering ? "bg-slate-100 dark:bg-slate-700" : "bg-transparent"
+                }`}
+              value={selectedNode.name === "$ref" && checkPathExists(json, newPath) ? formatRawValue(selectedInfo) : formatRawValue(selectedInfo)}
+              onChange={(e) => handleValueChange(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  setIsEditing(false);
+                }
+              }}
+            />
+          ) : (
+            <div className="flex items-center">
+              <LargeMono
+                className={`z-10 py-1 mb-1 text-slate-800 overflow-ellipsis break-words transition rounded-sm dark:text-slate-300 ${hovering ? "bg-slate-100 dark:bg-slate-700" : "bg-transparent"
+                  }`}
+              >
+                {selectedNode.name === "$ref" && checkPathExists(json, newPath) ? (
+                  <button onClick={handleClick}>
+                    {formatRawValue(selectedInfo)}
+                  </button>
+                ) : (
+                  formatRawValue(selectedInfo)
+                )}
+              </LargeMono>
+
+
+            </div>
+          )
+        )}
 
 
         <div
-          className={`absolute top-1 right-0 flex justify-end h-full w-fit transition ${
-            hovering ? "opacity-100" : "opacity-0"
-          }`}
+          className={`absolute top-1 right-0 flex justify-end h-full w-fit transition ${hovering ? "opacity-100" : "opacity-0"
+            }`}
         >
+          <button className="flex ml-auto justify-center items-center w-[26px] h-[26px] hover:bg-slate-300 dark:text-slate-400 dark:hover:bg-white dark:hover:bg-opacity-[10%]"
+                onClick={() => setIsEditing(true)}>
+                <PencilAltIcon className='h-5' />
+          </button>
           <CopyTextButton
             className="bg-slate-200 hover:bg-slate-300 h-fit mr-1 px-2 py-0.5 rounded-sm transition hover:cursor-pointer dark:text-white dark:bg-slate-600 dark:hover:bg-slate-500"
             value={formatRawValue(selectedInfo)}
           ></CopyTextButton>
+
         </div>
       </div>
       <div className="flex text-gray-400">
