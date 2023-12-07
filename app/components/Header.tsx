@@ -73,7 +73,7 @@ export function Header() {
           </PopoverContent>
         </Popover>
 
-        <li className="opacity-90 transition hover:cursor-pointer hover:opacity-100">
+        {/* <li className="opacity-90 transition hover:cursor-pointer hover:opacity-100">
           <GithubStar />
         </li>
         <li className="hover:cursor-pointer opacity-90 hover:opacity-100 transition">
@@ -85,7 +85,7 @@ export function Header() {
           <a href="https://discord.gg/JtBAxBr2m3" target="_blank">
             <DiscordIconTransparent />
           </a>
-        </li>
+        </li> */}
       </ol>
     </header>
   );

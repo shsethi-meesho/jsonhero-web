@@ -47,7 +47,7 @@ export function Footer() {
           </Body>
         </li>
       </ol>
-      <WorkflowFooterBanner />
+      {/* <WorkflowFooterBanner /> */}
       <ol className="flex gap-2 items-center h-full invisible md:visible">
         {minimal && (
           <li>

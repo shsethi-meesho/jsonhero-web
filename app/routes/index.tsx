@@ -43,14 +43,14 @@ export default function Index() {
         />
       )}
 
-      <HomeHeader fixed={true} />
+      {/* <HomeHeader fixed={true} /> */}
       <HomeHeroSection />
       <HomeInfoBoxSection />
       <HomeEdgeCasesSection />
       <HomeSearchSection />
       <HomeCollaborateSection />
       <HomeFeatureGridSection />
-      <HomeFooter />
+      {/* <HomeFooter /> */}
     </div>
   );
 }
