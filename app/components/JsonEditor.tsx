@@ -11,7 +11,7 @@ import { JSONHeroPath } from "@jsonhero/path";
 import {usePreferences} from '~/components/PreferencesProvider'
 
 export function JsonEditor() {
-  const [json] = useJson();
+  const [json, setJson] = useJson();
   const { selectedNodeId } = useJsonColumnViewState();
   const { goToNodeId } = useJsonColumnViewAPI();
   const [preferences] = usePreferences();
@@ -79,12 +79,18 @@ export function JsonEditor() {
     [goToNodeId]
   );
 
+  const handleEditorChange = (newContent: string) => {
+    const newJson = JSON.parse(newContent);
+    setJson(newJson);
+  };
+
   return (
     <CodeEditor
       language="json"
       content={jsonMapped.json}
-      readOnly={true}
+      readOnly={false}
       onUpdate={onUpdate}
+      onChange={handleEditorChange}
       selection={selection}
     />
   );

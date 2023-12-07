@@ -17,7 +17,7 @@ export type CodeEditorProps = {
   language?: "json";
   readOnly?: boolean;
   onChange?: (value: string) => void;
-  onUpdate?: (update: ViewUpdate) => void;
+    onUpdate?: (update: ViewUpdate) => void;
   selection?: { start: number; end: number };
 };
 
