@@ -30,7 +30,7 @@ export function InfoHeader({ relatedPaths }: InfoHeaderProps) {
 
   const selectedNode = selectedNodes[selectedNodes.length - 1];
 
-  const [json] = useJson();
+  const [json, setJson] = useJson();
 
   const selectedHeroPath = new JSONHeroPath(selectedNodeId);
   const selectedJson = selectedHeroPath.first(json);
@@ -49,6 +49,13 @@ export function InfoHeader({ relatedPaths }: InfoHeaderProps) {
   console.warn(selectedInfo);
 
   const newPath = formattedSelectedInfo.replace(/^#/, "$").replace(/\//g, ".");
+
+  const handleValueChange = (newValue: string) => {
+    // Update the corresponding part of the json object
+    selectedHeroPath.set(json, newValue);
+
+    setJson(json);
+  };
 
   const handleClick = useCallback(() => {
     goToNodeId(newPath, "pathBar");
@@ -73,7 +80,7 @@ export function InfoHeader({ relatedPaths }: InfoHeaderProps) {
         onMouseEnter={() => setHovering(true)}
         onMouseLeave={() => setHovering(false)}
       >
-        {isSelectedLeafNode && (
+        {/* {isSelectedLeafNode && (
           <LargeMono
             className={`z-10 py-1 mb-1 text-slate-800 overflow-ellipsis break-words transition rounded-sm dark:text-slate-300 ${
               hovering ? "bg-slate-100 dark:bg-slate-700" : "bg-transparent"
@@ -87,7 +94,18 @@ export function InfoHeader({ relatedPaths }: InfoHeaderProps) {
               formatRawValue(selectedInfo)
             )}
           </LargeMono>
-        )}
+        )} */}
+        {isSelectedLeafNode && (
+    <textarea
+      className={`z-10 py-1 mb-1 text-slate-800 overflow-ellipsis break-words transition rounded-sm dark:text-slate-300 ${
+        hovering ? "bg-slate-100 dark:bg-slate-700" : "bg-transparent"
+      }`}
+      value={selectedNode.name === "$ref" && checkPathExists(json, newPath) ? formatRawValue(selectedInfo) : formatRawValue(selectedInfo)}
+      onChange={(e) => handleValueChange(e.target.value)}
+    />
+  )}
+
+
         <div
           className={`absolute top-1 right-0 flex justify-end h-full w-fit transition ${
             hovering ? "opacity-100" : "opacity-0"
