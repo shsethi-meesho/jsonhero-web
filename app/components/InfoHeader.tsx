@@ -14,6 +14,7 @@ import { Body } from "./Primitives/Body";
 import { LargeMono } from "./Primitives/LargeMono";
 import { Title } from "./Primitives/Title";
 import { ValueIcon, ValueIconSize } from "./ValueIcon";
+import { PencilAltIcon } from "@heroicons/react/outline";
 
 export type InfoHeaderProps = {
   relatedPaths: string[];
@@ -30,7 +31,7 @@ export function InfoHeader({ relatedPaths }: InfoHeaderProps) {
 
   const selectedNode = selectedNodes[selectedNodes.length - 1];
 
-  const [json] = useJson();
+  const [json, setJson] = useJson();
 
   const selectedHeroPath = new JSONHeroPath(selectedNodeId);
   const selectedJson = selectedHeroPath.first(json);
@@ -46,19 +47,51 @@ export function InfoHeader({ relatedPaths }: InfoHeaderProps) {
   }, [relatedPaths, json]);
 
   const [hovering, setHovering] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+
   console.warn(selectedInfo);
 
   const newPath = formattedSelectedInfo.replace(/^#/, "$").replace(/\//g, ".");
+
+  const handleValueChange = (newValue: string) => {
+    // Update the corresponding part of the json object
+    selectedHeroPath.set(json, newValue);
+
+    setJson(json);
+  };
 
   const handleClick = useCallback(() => {
     goToNodeId(newPath, "pathBar");
   }, [newPath, goToNodeId]);
 
+  // Add a new state variable for the textarea value
+  const [textareaValue, setTextareaValue] = useState('');
+
+  // Update the textarea value in the local state on every change
+  const handleTextareaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setTextareaValue(e.target.value);
+  };
+
+  // Update the global state when the user presses Enter
+  const handleTextareaKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleValueChange(textareaValue);
+      setIsEditing(false);
+    }
+  };
+
+  // Set the textarea value when the user starts editing
+  const startEditing = () => {
+    setTextareaValue(formatRawValue(selectedInfo));
+    setIsEditing(true);
+  };
+
   return (
     <div className="mb-4 pb-4">
       <div className="flex items-center">
         <Title className="flex-1 mr-2 overflow-hidden overflow-ellipsis break-words text-slate-700 transition dark:text-slate-200">
-          { selectedName ?? "nothing" }
+          {selectedName ?? "nothing"}
         </Title>
         <div>
           <ValueIcon
@@ -74,29 +107,48 @@ export function InfoHeader({ relatedPaths }: InfoHeaderProps) {
         onMouseLeave={() => setHovering(false)}
       >
         {isSelectedLeafNode && (
-          <LargeMono
-            className={`z-10 py-1 mb-1 text-slate-800 overflow-ellipsis break-words transition rounded-sm dark:text-slate-300 ${
-              hovering ? "bg-slate-100 dark:bg-slate-700" : "bg-transparent"
-            }`}
-          >
-            {selectedNode.name === "$ref" && checkPathExists(json, newPath) ? (
-              <button onClick={handleClick}>
-                {formatRawValue(selectedInfo)}
-              </button>
-            ) : (
-              formatRawValue(selectedInfo)
-            )}
-          </LargeMono>
-        )}
-        <div
-          className={`absolute top-1 right-0 flex justify-end h-full w-fit transition ${
-            hovering ? "opacity-100" : "opacity-0"
+          isEditing ? (
+            <input
+            className={`z-10 py-1 mb-1 text-slate-800 overflow-ellipsis break-words transition rounded-sm dark:text-slate-300 ${hovering ? "bg-slate-100 dark:bg-slate-700" : "bg-transparent"
           }`}
+              value={textareaValue}
+              onChange={handleTextareaChange}
+              onKeyDown={handleTextareaKeyDown}
+            />
+          ) : (
+            <div className="flex items-center">
+              <LargeMono
+                className={`z-10 py-1 mb-1 text-slate-800 overflow-ellipsis break-words transition rounded-sm dark:text-slate-300 ${hovering ? "bg-slate-100 dark:bg-slate-700" : "bg-transparent"
+                  }`}
+              >
+                {selectedNode.name === "$ref" && checkPathExists(json, newPath) ? (
+                  <button onClick={handleClick}>
+                    {formatRawValue(selectedInfo)}
+                  </button>
+                ) : (
+                  formatRawValue(selectedInfo)
+                )}
+              </LargeMono>
+
+
+            </div>
+          )
+        )}
+
+
+        <div
+          className={`absolute top-1 right-0 flex justify-end h-full w-fit transition ${hovering ? "opacity-100" : "opacity-0"
+            }`}
         >
+          <button className="flex ml-auto justify-center items-center w-[26px] h-[26px] hover:bg-slate-300 dark:text-slate-400 dark:hover:bg-white dark:hover:bg-opacity-[10%]"
+            onClick={() => startEditing()}>
+            <PencilAltIcon className='h-5' />
+          </button>
           <CopyTextButton
             className="bg-slate-200 hover:bg-slate-300 h-fit mr-1 px-2 py-0.5 rounded-sm transition hover:cursor-pointer dark:text-white dark:bg-slate-600 dark:hover:bg-slate-500"
             value={formatRawValue(selectedInfo)}
           ></CopyTextButton>
+
         </div>
       </div>
       <div className="flex text-gray-400">
